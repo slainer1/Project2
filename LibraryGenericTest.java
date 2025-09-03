@@ -98,8 +98,28 @@ public class LibraryGenericTest {
         patronByPhoneLibrary.checkOut(9780330351690L, patron, 10, 1, 2024);
         patronByPhoneLibrary.checkOut(9780374292799L, patron, 10, 1, 2024);
         assertTrue(patronByPhoneLibrary.checkIn(new PhoneNumber("801.555.1234")));
+
     }
 
     // TODO: Add tests.
+
+    @Test
+    public void testOrderByISBN(){
+        //System.out.print(patronByNameLibrary.getListSortedByIsbn());
+         }
+         @Test
+    public void testOrderByAuthor(){
+       // System.out.print(patronByNameLibrary.getListSortedByAuthor());
+
+    }
+    @Test
+    public void testOrderByDueDate(){
+        PhoneNumber patron = new PhoneNumber("801.555.1234");
+        patronByPhoneLibrary.checkOut(9780330351690L, patron, 10, 1, 2024);
+        patronByPhoneLibrary.checkOut(9780374292799L, patron, 11, 2, 2024);
+        patronByPhoneLibrary.getOverdueList();
+        System.out.print(patronByNameLibrary.getOverdueList());
+    }
 }
+
 

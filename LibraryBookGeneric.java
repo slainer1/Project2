@@ -2,9 +2,9 @@ package assign02;
 
 import java.util.GregorianCalendar;
 
-public class LibraryBookGeneric<Type> extends Book
+public class LibraryBookGeneric<T> extends Book
 {
-    private Type patronNumber;
+    private T patronNumber;
     private GregorianCalendar dueDate;
 
     public LibraryBookGeneric (long isbn, String authorSurname, String authorOtherName, String title)
@@ -14,18 +14,18 @@ public class LibraryBookGeneric<Type> extends Book
         this.dueDate = null;
     }
 
-    public Type getPatron()
+    public T getPatron()
     {
         return patronNumber;
     }
 
     public GregorianCalendar getDueDate()
     {
-        return dueDate;
+        return this.dueDate;
 
     }
 
-    public void checkOut(Type patronNumber, GregorianCalendar due)
+    public void checkOut(T patronNumber, GregorianCalendar due)
     {
         this.patronNumber = patronNumber;
         this.dueDate = due;

@@ -3,9 +3,7 @@ package assign02;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Representation of a library, which is a collection of library books.
@@ -15,13 +13,13 @@ import java.util.Scanner;
  */
 public class LibraryGeneric<T> {
 
-    private ArrayList<LibraryBook> library;
+    private ArrayList<LibraryBookGeneric<T>> library;
 
     /**
      * Creates an empty library.
      */
     public LibraryGeneric() {
-        this.library = new ArrayList<LibraryBookGeneric>();
+        this.library = new ArrayList <LibraryBookGeneric<T>>();
     }
 
     /**
@@ -34,7 +32,7 @@ public class LibraryGeneric<T> {
      * @param title           - title of the book to be added
      */
     public void add(long isbn, String authorSurname, String authorOtherName, String title) {
-        this.library.add(new LibraryBook(isbn, authorSurname, authorOtherName, title));
+        this.library.add(new LibraryBookGeneric<>(isbn, authorSurname, authorOtherName, title));
     }
 
     /**
@@ -43,7 +41,7 @@ public class LibraryGeneric<T> {
      *
      * @param list - list of library books to be added
      */
-    public void addAll(ArrayList<LibraryBook> list) {
+    public void addAll(ArrayList<LibraryBookGeneric<T>> list) {
         this.library.addAll(list);
     }
 
@@ -59,7 +57,7 @@ public class LibraryGeneric<T> {
      *                 added
      */
     public void addAll(String filename) {
-        ArrayList<LibraryBook> toBeAdded = new ArrayList<LibraryBook>();
+        ArrayList<LibraryBookGeneric<T>> toBeAdded = new ArrayList<LibraryBookGeneric<T>>();
 
         try (Scanner fileIn = new Scanner(new File(filename))) {
             int lineNum = 1;
@@ -85,7 +83,7 @@ public class LibraryGeneric<T> {
                         throw new ParseException("Title", lineNum);
                     String title = lineIn.next();
 
-                    toBeAdded.add(new LibraryBook(isbn, authorNames[0], authorNames[1], title));
+                    toBeAdded.add(new LibraryBookGeneric<>(isbn, authorNames[0], authorNames[1], title));
 
                     lineNum++;
                 } catch (ParseException e) {
@@ -112,7 +110,7 @@ public class LibraryGeneric<T> {
      */
     public int lookup(long isbn) {
         // TODO: Replace return statement with code to accomplish the method contract above.
-        int found = -1;
+        T found = null;
         for (int i = 0; i < library.size(); i++) {
             if (library.get(i).getIsbn() == isbn) {
                 found = library.get(i).getPatron();
@@ -132,14 +130,16 @@ public class LibraryGeneric<T> {
      * @param patron - id of patron whose list of checked out books is being
      *               accessed
      */
-    public ArrayList<LibraryBook> lookup(T patron) {
+    public ArrayList<LibraryBookGeneric<T>> lookup(T patron) {
         // TODO: Replace return statement with code to accomplish the method contract above.
-        ArrayList<LibraryBook> bookList = new ArrayList<>();
+        ArrayList<LibraryBookGeneric<T>> bookList = new ArrayList<>();
         for (int i = 0; i < library.size(); i++) {
-            if (library.get(i).getPatron() == patron) {
+            if (patron.equals(library.get(i).getPatron())) {
                 bookList.add(library.get(i));
+
             }
         }
+
         return bookList;
     }
 
@@ -160,15 +160,13 @@ public class LibraryGeneric<T> {
     public boolean checkOut(long isbn, T patron, int month, int day, int year) {
         // TODO: Replace return statement with code to accomplish the method contract above.
         GregorianCalendar calendarDate = new GregorianCalendar(year, month, day);
-        Boolean returnStatement = false;
+        boolean returnStatement = false;
         for (int i = 0; i < library.size(); i++) {
-            if (library.get(i).getIsbn() == isbn) {
-                if (library.get(i).getPatron() == -1) {
+            if (library.get(i).getIsbn() == isbn && library.get(i).getPatron() == null) {
                     library.get(i).checkOut(patron, calendarDate);
-                    returnStatement = true;
-                }
+                    returnStatement = false;
             } else {
-                returnStatement = false;
+                returnStatement = true;
             }
 
         }
@@ -191,7 +189,7 @@ public class LibraryGeneric<T> {
         Boolean returnStatement = false;
         for (int i = 0; i < library.size(); i++) {
             if (library.get(i).getIsbn() == isbn) {
-                if (library.get(i).getPatron() != -1) {
+                if (library.get(i).getPatron() != null) {
                     library.get(i).checkIn();
                     returnStatement = true;
                 } else {
@@ -212,18 +210,85 @@ public class LibraryGeneric<T> {
      *
      * @param patron - id of the patron returning all books to the library
      */
-    public boolean checkIn(int patron) {
+    public boolean checkIn(T patron) {
         // TODO: Replace return statement with code to accomplish the method contract above.
-        Boolean returnStatement = false;
+        boolean returnStatement = false;
         for (int i = 0; i < library.size(); i++) {
-            if (library.get(i).getPatron() == patron) {
+            if (patron.equals(library.get(i).getPatron())) {
                 library.get(i).checkIn();
-                returnStatement = true;
-            } else {
                 returnStatement = false;
+
+            } else {
+                returnStatement = true;
+
             }
         }
-
         return returnStatement;
     }
+
+
+    /**
+     * Performs a SELECTION SORT on a given list of library books.
+     *
+     * 1. Finds the smallest item in the list.
+     * 2. Swaps the smallest item with the first item in the list.
+     * 3. Reconsiders the list to be the remaining unsorted portion (second item to Nth item) and repeats steps 1, 2, and 3.
+     *
+     * @param list - list of library books to be sorted
+     * @param cmp - Comparator defining how to compare library books
+     */
+    private static <InnerType> void sort(List<LibraryBookGeneric<InnerType>> list, Comparator<LibraryBookGeneric<InnerType>> cmp) {
+        for(int i = 0; i < list.size() - 1; i++) {
+            int j, minIndex;
+            for(j = i + 1, minIndex = i; j < list.size(); j++)
+                if(cmp.compare(list.get(j), list.get(minIndex)) < 0)
+                    minIndex = j;
+            LibraryBookGeneric<InnerType> temp = list.get(i);
+            list.set(i, list.get(minIndex));
+            list.set(minIndex, temp);
+        }
+    }
+
+    /**
+     * Gets a list of books in this library sorted by ISBN, smallest to largest.
+     * If the library is empty, returns an empty list.
+     *
+     * @return list of all library books sorted by ISBN
+     */
+    public List<LibraryBookGeneric<T>> getListSortedByIsbn() {
+        List<LibraryBookGeneric<T>> libraryCopy = new ArrayList<LibraryBookGeneric<T>>();
+        libraryCopy.addAll(this.library);
+
+        OrderByIsbn<T> comparator = new OrderByIsbn<T>();
+        sort(libraryCopy, comparator);
+
+        return libraryCopy;
+    }
+
+    /**
+     * Gets a list of books in this library sorted by author surname, lexicographically.
+     * For books with the same author surname, break ties using book titles.
+     * If the library is empty, returns an empty list.
+     *
+     * @return list of all library books sorted by author surname
+     */
+
+    public List<LibraryBookGeneric<T>> getListSortedByAuthor() {
+        List<LibraryBookGeneric<T>> libraryCopy = new ArrayList<>();
+        libraryCopy.addAll(this.library);
+
+        OrderByAuthor<T> comparator = new OrderByAuthor<T>();
+        sort(libraryCopy, comparator);
+        return libraryCopy;
+    }
+
+    public List<LibraryBookGeneric<T>> getOverdueList(int month, int day, int year) {
+        GregorianCalendar calendarDate = new GregorianCalendar(year, month, day);
+        List<LibraryBookGeneric<T>> libraryCopy = new ArrayList<>();
+        libraryCopy.addAll(this.library);
+        OrderByDueDate<T> comparator = new OrderByDueDate<T>();
+        return libraryCopy;
+    }
+
+
 }

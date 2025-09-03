@@ -93,8 +93,11 @@ public class Book {
 			return false;
 
 		Book otherBook = (Book) other;
-		
-		// TODO: Replace return statement with code to accomplish the method contract above.
-		return false;
+		boolean returnStatement = false;
+		if (this.isbn == otherBook.isbn && this.authorSurname.equals(otherBook.authorSurname) && this.authorOtherName.equals(otherBook.authorOtherName) && this.title.equals(otherBook.title)) {
+			returnStatement = true;
+		}
+
+		return returnStatement;
 	}
 }
